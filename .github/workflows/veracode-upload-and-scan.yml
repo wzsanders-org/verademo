@@ -8,7 +8,7 @@ jobs:
     
     steps:
       - name: Check out main branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         
       - name: Build with Maven # Compiling the .war binary from the checked out repo source code to upload to the scanner in the next step
         run: mvn -B package --file app/pom.xml
