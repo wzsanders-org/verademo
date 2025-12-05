@@ -16,7 +16,7 @@ jobs:
       - name: Veracode Upload And Scan
         uses: veracode/veracode-uploadandscan-action@0.2.10
         with:
-          appname: 'VeraDemo'
+          appname: 'William Sanders Interview'
           createprofile: false
           filepath: 'app/target/verademo.war'
           vid: '${{ secrets.VERACODE_API_ID }}'
