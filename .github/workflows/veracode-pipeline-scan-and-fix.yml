@@ -64,7 +64,7 @@ jobs:
       - name: Run Veracode Fix (AI Remediation)
         # This action uses the results from the Pipeline Scan to generate and apply code patches [11], [9], [12]
         uses: veracode/veracode-fix@v1.0.4 # This is a recognized Veracode action [8]
-        if: ${{ github.event_name == 'pull_request' }} # Only run Fix on pull requests, which is standard practice [11]
+        # if: ${{ github.event_name == 'pull_request' }} # Only run Fix on pull requests, which is standard practice [11]
         with:
           vid: ${{ env.VERACODE_API_ID }}
           vkey: ${{ env.VERACODE_API_KEY }}
