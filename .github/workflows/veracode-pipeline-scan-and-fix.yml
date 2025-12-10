@@ -65,7 +65,7 @@ jobs:
       - name: Run Veracode Fix (AI Remediation)
         # This action uses the results from the Pipeline Scan to generate and apply code patches [11], [9], [12]
         uses: veracode/veracode-fix@v1.0.4 # This is a recognized Veracode action [8]
-        if: ${{ github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' }} # Only run Fix on pull requests, which is standard practice [11]
+        # if: ${{ github.event_name == 'pull_request' }} # Only run Fix on pull requests, which is standard practice [11]
         with:
           vid: ${{ env.VERACODE_API_ID }}
           vkey: ${{ env.VERACODE_API_KEY }}
@@ -73,3 +73,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }} # Required for creating a branch and opening a pull request [11], [13]
           # By default, Veracode Fix applies its first suggested code fix to a flaw [9].
           # The result of this action is the creation of a new branch and opening a Pull Request with suggested fixes [11], [13].
+          language: java
+          prComment: true
+          fixType: single
