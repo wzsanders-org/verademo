@@ -54,7 +54,7 @@ jobs:
           
       - name: Run Veracode Pipeline Scan (SAST)
         # This action performs the rapid static analysis scan and generates the JSON results file.
-        uses: veracode/Veracode-pipeline-scan-action@main # This is a recognized Veracode action [8]
+        uses: veracode/Veracode-pipeline-scan-action@v1.0.20 # This is a recognized Veracode action [8]
         with:
           vid: ${{ env.VERACODE_API_ID }}
           vkey: ${{ env.VERACODE_API_KEY }}
@@ -64,8 +64,8 @@ jobs:
 
       - name: Run Veracode Fix (AI Remediation)
         # This action uses the results from the Pipeline Scan to generate and apply code patches [11], [9], [12]
-        uses: veracode/Veracode-fix-action@main # This is a recognized Veracode action [8]
-        if: ${{ github.event_name == 'pull_request' }} # Only run Fix on pull requests, which is standard practice [11]
+        uses: veracode/veracode-fix@v1.0.4 # This is a recognized Veracode action [8]
+        if: ${{ github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' }} # Only run Fix on pull requests, which is standard practice [11]
         with:
           vid: ${{ env.VERACODE_API_ID }}
           vkey: ${{ env.VERACODE_API_KEY }}
