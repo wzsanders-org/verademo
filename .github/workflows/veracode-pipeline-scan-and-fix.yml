@@ -1,0 +1,75 @@
+name: Verademo CI/CD Security Workflow
+on: 
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build_package:
+    # Job 1: Build the Verademo application using Maven and save the artifact.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: Set up JDK 8 (Required for Verademo)
+        uses: actions/setup-java@v1 # Setup Java version 1.8 based on common examples [5]
+        with:
+          java-version: '1.8'
+          
+      - name: Build Verademo Application (mvn clean package)
+        # Assuming Verademo follows standard Maven structure where /app contains the pom.xml [7], [4]
+        run: |
+          cd app
+          mvn clean package
+          
+      - name: Upload Verademo Artifact (verademo.war)
+        # The Maven build creates the artifact in the target folder: app/target/verademo.war [7]
+        uses: actions/upload-artifact@v4
+        with:
+          name: verademo-build-artifact
+          path: app/target/verademo.war
+
+  security_analysis:
+    # Job 2: Download artifact, run Pipeline Scan (SAST), and apply Veracode Fix (AI Remediation).
+    needs: build_package
+    runs-on: ubuntu-latest
+    
+    # Define credentials securely using environment variables for the actions to access [6]
+    env:
+      VERACODE_API_ID: ${{ secrets.VERACODE_API_ID }}
+      VERACODE_API_KEY: ${{ secrets.VERACODE_API_KEY }}
+
+    steps:
+      - name: Checkout Code (Needed for Veracode Fix to create branches/PRs)
+        uses: actions/checkout@v4
+        
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: verademo-build-artifact
+          # The artifact will be downloaded to the current working directory as 'verademo.war'
+          
+      - name: Run Veracode Pipeline Scan (SAST)
+        # This action performs the rapid static analysis scan and generates the JSON results file.
+        uses: veracode/Veracode-pipeline-scan-action@main # This is a recognized Veracode action [8]
+        with:
+          vid: ${{ env.VERACODE_API_ID }}
+          vkey: ${{ env.VERACODE_API_KEY }}
+          file: verademo.war # File path to the packaged application [7], [2]
+          json_output_file: results.json # Generate results file required by Veracode Fix [9]
+          fail_on_severity: "Very High,High" # Example policy enforcement [10]
+
+      - name: Run Veracode Fix (AI Remediation)
+        # This action uses the results from the Pipeline Scan to generate and apply code patches [11], [9], [12]
+        uses: veracode/Veracode-fix-action@main # This is a recognized Veracode action [8]
+        if: ${{ github.event_name == 'pull_request' }} # Only run Fix on pull requests, which is standard practice [11]
+        with:
+          vid: ${{ env.VERACODE_API_ID }}
+          vkey: ${{ env.VERACODE_API_KEY }}
+          json_file: results.json # Uses the output file from the previous step [9]
+          token: ${{ secrets.GITHUB_TOKEN }} # Required for creating a branch and opening a pull request [11], [13]
+          # By default, Veracode Fix applies its first suggested code fix to a flaw [9].
+          # The result of this action is the creation of a new branch and opening a Pull Request with suggested fixes [11], [13].
