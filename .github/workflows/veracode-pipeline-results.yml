@@ -60,7 +60,6 @@ jobs:
           vkey: ${{ env.VERACODE_API_KEY }}
           file: verademo.war # File path to the packaged application [7], [2]
           json_output_file: results.json # Generate results file required by Veracode Fix [9]
-          githubToken: ${{ secrets.GITHUB_TOKEN }} 
 
       - name: Upload Verademo Results (results.json)
         uses: actions/upload-artifact@v4
