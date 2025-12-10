@@ -60,7 +60,6 @@ jobs:
           vkey: ${{ env.VERACODE_API_KEY }}
           file: verademo.war # File path to the packaged application [7], [2]
           json_output_file: results.json # Generate results file required by Veracode Fix [9]
-          fail_on_severity: "Very High,High" # Example policy enforcement [10]
 
       - name: Run Veracode Fix (AI Remediation)
         # This action uses the results from the Pipeline Scan to generate and apply code patches [11], [9], [12]
@@ -69,10 +68,7 @@ jobs:
         with:
           vid: ${{ env.VERACODE_API_ID }}
           vkey: ${{ env.VERACODE_API_KEY }}
-          json_file: results.json # Uses the output file from the previous step [9]
-          token: ${{ secrets.GITHUB_TOKEN }} # Required for creating a branch and opening a pull request [11], [13]
-          # By default, Veracode Fix applies its first suggested code fix to a flaw [9].
-          # The result of this action is the creation of a new branch and opening a Pull Request with suggested fixes [11], [13].
+          inputFile: results.json # Uses the output file from the previous step [9]
           language: java
           prComment: true
           fixType: single
