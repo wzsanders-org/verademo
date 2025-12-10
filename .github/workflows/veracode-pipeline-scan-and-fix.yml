@@ -70,5 +70,4 @@ jobs:
           vkey: ${{ env.VERACODE_API_KEY }}
           inputFile: results.json # Uses the output file from the previous step [9]
           language: java
-          prComment: true
-          fixType: single
+          fixType: batch
